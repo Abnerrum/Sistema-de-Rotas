@@ -1,0 +1,38 @@
+services:
+  api:
+    build: .
+    container_name: rotas_api
+    ports:
+      - "8000:8000"
+    environment:
+      APP_NAME: Sistema Inteligente de Gestao de Rotas
+      SECRET_KEY: altere-em-producao
+      ACCESS_TOKEN_EXPIRE_MINUTES: 120
+      DATABASE_URL: mysql+pymysql://rotas:rotas123@db:3306/rotas_db
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - .:/app
+
+  db:
+    image: mysql:8.4
+    container_name: rotas_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: rotas_db
+      MYSQL_USER: rotas
+      MYSQL_PASSWORD: rotas123
+      MYSQL_ROOT_PASSWORD: root123
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
